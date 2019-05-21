@@ -1,0 +1,139 @@
+<html>
+<head>
+<title>login</title>
+<script src="https://www.gstatic.com/firebasejs/5.8.3/firebase.js"></script>
+<script src="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.js"></script>
+<link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
+<script>
+  /*
+웹사이트에서 Firebase 인증 시작하기
+Firebase 인증을 사용하면 사용자가 이메일 주소와 비밀번호 로그인 및 제휴 ID 제공업체(예: Google 로그인, Facebook 로그인)를 비롯한 1개 이상의 로그인 방법을 사용해 앱에 로그인할 수 있습니다. 이 가이드에서는 Firebase 인증을 시작할 수 있도록 앱에 이메일 주소와 비밀번호 로그인을 추가하는 방법을 보여줍니다.
+
+Firebase에 앱 연결
+Firebase SDK를 설치*/
+
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAr7oKz5BioWcNRMrARqr9yGLI1xKscOj4",
+    authDomain: "approval-project-231703.firebaseapp.com",
+    databaseURL: "https://approval-project-231703.firebaseio.com",
+    projectId: "approval-project-231703",
+    storageBucket: "approval-project-231703.appspot.com",
+    messagingSenderId: "762544477250"
+  };
+  firebase.initializeApp(config);
+// Firebase SDK를 설치
+
+
+  // Initialize the FirebaseUI Widget using Firebase.
+var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+var uiConfig = {
+  callbacks: {
+    signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+      // User successfully signed in.
+      // Return type determines whether we continue the redirect automatically
+      // or whether we leave that to developer to handle.
+      alert('성공!');
+      return true;
+    },
+    uiShown: function() {
+      // The widget is rendered.
+      // Hide the loader.
+      document.getElementById('loader').style.display = 'none';
+    }
+  },
+  // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
+  signInFlow: 'popup',
+  signInSuccessUrl: 'http://localhost:3000/google/login',
+  signInOptions: [
+    // Leave the lines as is for the providers you want to offer your users.
+    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+    firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+    firebase.auth.GithubAuthProvider.PROVIDER_ID,
+    firebase.auth.EmailAuthProvider.PROVIDER_ID,
+    firebase.auth.PhoneAuthProvider.PROVIDER_ID
+  ],
+  // Terms of service url.
+  tosUrl: '<your-tos-url>',
+  // Privacy policy url.
+  privacyPolicyUrl: '<your-privacy-policy-url>'
+};
+
+// The start method will wait until the DOM is loaded.
+ui.start('#firebaseui-auth-container', uiConfig);
+
+firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // ...
+});
+
+
+
+var provider = new firebase.auth.GoogleAuthProvider();
+
+// provider가 띄우는 url
+provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+
+firebase.auth().languageCode = 'kor';
+// To apply the default browser preference instead of explicitly setting it.
+// firebase.auth().useDeviceLanguage();
+
+//popup 띄우는 콜백
+// firebase.auth().signInWithPopup(provider).then(function(result) {
+//   // This gives you a Google Access Token. You can use it to access the Google API.
+//   var token = result.credential.accessToken;
+//   // The signed-in user info.
+//   var user = result.user;
+//   // ...
+// }).catch(function(error) {
+//   // Handle Errors here.
+//   var errorCode = error.code;
+//   var errorMessage = error.message;
+//   // The email of the user's account used.
+//   var email = error.email;
+//   // The firebase.auth.AuthCredential type that was used.
+//   var credential = error.credential;
+//   // ...
+//   alert(errorCode+"\n"+errorMessage+"\n"+email+"\n"+credential);
+// });
+
+
+
+
+// verifed email send module
+var actionCodeSettings = {
+  // URL you want to redirect back to. The domain (www.example.com) for this
+  // URL must be whitelisted in the Firebase Console.
+  url: 'https://localhost:3000/?email=user@example.com',
+  dynamicLinkDomain: 'example.page.link'
+};
+
+var email;
+
+function sendSignInLinkToEmail(email, actionCodeSettings){
+  	email = document.getElementById('email').value;
+	firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings).then(function() {
+    // The link was successfully sent. Inform the user.
+    // Save the email locally so you don't need to ask the user for it again
+    // if they open the link on the same device.
+    window.localStorage.setItem('emailForSignIn', email);
+  })
+  .catch(function(error) {
+    // Some error occurred, you can inspect the code: error.code
+  });
+}
+</script>
+</head>
+<body>
+<h1>This is google Login Test Page.</h1>
+<!-- The surrounding HTML is left untouched by FirebaseUI.
+     Your app may use that space for branding, controls and other customizations.-->
+<h1>Welcome to My Awesome App</h1>
+<div id="firebaseui-auth-container"></div>
+<div id="loader">Loading...</div>
+</body>
+</html>
